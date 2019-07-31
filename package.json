@@ -1,0 +1,27 @@
+{
+  "name": "text_encoder_fix",
+  "version": "1.0.0",
+  "description": "An app for the fixing of mis-encoded text in a csv file",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Oliver Hovey",
+  "license": "ISC",
+  "devDependencies": {
+    "bootstrap": "^4.3.1",
+    "electron": "^5.0.7",
+    "jquery": "^3.3.1",
+    "papa": "0.0.0",
+    "papaparse": "^5.0.1",
+    "popper.js": "^1.14.4"
+  },
+  "dependencies": {
+    "electron-window-manager": "^1.0.6",
+    "encoding": "^0.1.12",
+    "file-saver": "^2.0.2",
+    "iconv": "^2.3.4",
+    "iconv-lite": "^0.5.0",
+    "text-encoding": "^0.7.0"
+  }
+}

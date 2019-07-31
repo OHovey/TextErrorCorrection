@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Bootstrap Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script>let $ = require('jquery');</script>
+    <script>require('popper.js');</script>
+    <script>require('bootstrap');</script>
+
+    <!-- custom css -->
+    <link rel="stylesheet" href="main.css">
+
+  </head>
+  <body>
+    <div class="container col-sm-10 col-md-8 col-xl-6 align-self-center">
+        <div class="container">
+          
+            <div>
+            <div class="input-container border border-primary rounded p-4">
+                    <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Data File</span>
+                            </div>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id = "inputFile">
+                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                            </div>
+                        </div>
+                        <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="inputEnc">Original Encoding</label>
+                        </div>
+                        <select id = "inputEnc" class="custom-select">
+                            <option selected>Choose...</option>
+                            <option value="1">iso-8859-1</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                        </select>
+                        </div>
+                        <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text" for="outputEnc">Final Encoding</label>
+                                </div>
+                                <select  id = "outputEnc" class="custom-select" >
+                                    <option selected>Choose...</option>
+                                    <option value="1">utf-8</option>
+                                    <option value="2">Two</option>
+                                    <option value="3">Three</option>
+                                </select>
+                                </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Output Location</span>
+                            </div>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="outputDir" webkitdirectory directory multiple>
+                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-primary btn-block" onclick="handleFormSubmit()">
+                                Submit
+                            </button>
+                        </div>
+            </div>
+            
+            <!-- <form id = "form" onsubmit=""> -->
+                
+            <!-- </form> -->
+            </div>
+          
+        </div>
+    </div>
+  </body>
+
+  <!-- <script src = './services/csvService.js'></script> -->
+
+  <!-- Text Encoding Modules for primary functionality functionality -->
+  <!-- <script src="./node_modules/text-encoding/lib/encoding-indexes.js"></script>
+  <script src="./node_modules/text-encoding/lib/encoding.js"></script> -->
+
+  <!-- <script src="encoding.js"></script> -->
+  <script src = './renderer.js'></script>
+</html>

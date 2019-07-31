@@ -1,0 +1,9 @@
+body {
+    height: 100%;
+}
+
+
+.align-self-center {
+    padding-top: 100px;
+    margin-top: 50px;
+}
