@@ -1,6 +1,11 @@
 const { remote, ipcRenderer } = require('electron') 
-const { handleForm } = remote.require('./main') 
+const { handleForm, getMenuState } = remote.require('./main') 
 const currentWindow = remote.getCurrentWindow() 
+
+// import initial menu states 
+//inputEncoding state 
+let menuState = currentWindow.process.argv['menuState']
+console.log(menuState)
 
 const Form = document.querySelector('.input-container') 
 
@@ -12,17 +17,29 @@ const outputDir = document.getElementById('outputDir')
 
 handleFormSubmit = () => {
     try {
+        // e.preventDefault() 
+        console.log('hi')
+        // console.log(e)
         handleForm(currentWindow)
     } catch (err) {
-        console.error(err)
+        console.log('hi')
+    } finally {
+        console.log('in finally block')
     }
 }
+
+//Setup Menu State 
+ipcRenderer.on('MenuStateSent', (e, args) => {
+    // set selection menu of input and output encoding form inputs
+})
 
 ipcRenderer.on('form-submitted', (e, args) => {
     console.log(e)
     console.log('back at renderer process')
+    console.log(Form.childNodes)
     
     inputGroups = {}
+
     Form.childNodes.forEach(node => {
         if (node.classList != undefined) {
             let input = node.childNodes.item(3)
@@ -38,6 +55,7 @@ ipcRenderer.on('form-submitted', (e, args) => {
                     const key = input.id
                     input.childNodes.forEach( childNode => {
                         if (childNode.tagName = 'OPTION') {
+                            console.log('childNode: ' + childNode.innerText)
                             if (childNode.selected) {
                                 let value = childNode.innerText
                                 inputGroups[key] = value
@@ -45,8 +63,12 @@ ipcRenderer.on('form-submitted', (e, args) => {
                         }
                     })
                 }
-            } 
+            } else {
+
+            }
+            // console.log(input)
         }
+        // console.log(typeof(node.classList))
     })
 
     CsvService.transmute(inputGroups)
@@ -67,6 +89,8 @@ const FileSaver = require('file-saver')
 
 class CsvService {
     
+    // send csv file data to pyhton script and return either success or 
+    // error message
     static transmute(inputGroups) {
         const file = inputGroups.inputFile.files[0]
         const inputEncoding = inputGroups.inputEnc
