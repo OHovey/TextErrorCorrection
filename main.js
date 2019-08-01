@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, Menu } = require('electron')
+const { app, BrowserWindow, globalShortcut, Menu, ipcMain } = require('electron')
 const windowManager = require('electron-window-manager')
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -6,14 +6,20 @@ const windowManager = require('electron-window-manager')
 let win
 
 function createWindow () {
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      additionalArguments: {
+        'state': menuState
+      }
     }
   })
+
+  win.rendererSideName = 
 
   // and load the index.html of the app.
   win.loadFile('index.html')
@@ -40,22 +46,30 @@ function createWindow () {
   // Create Menu  
   let menu = Menu.buildFromTemplate([
     {
-      label: 'Main',
-      submenu: [
-        { label: 'Quit', click() {
-          app.quit()
-        }}
-      ],
+        label: 'Main',
+        submenu: [
+          { label: 'Quit', click() {
+            app.quit()
+          }
+        }
+        ],
+    },
+    {
       label: 'Encoding',
       submenu: [
-        { label: 'Set Defaults'  },
+        { label: 'Set Defaults', click() {
+
+        }},
         { label: 'Add Encoding' } 
       ],
+    },
+    {
       label: 'Help',
       submenu: [
         { label: 'Launch Dev Tools', click() {
           win.webContents.openDevTools()
-        }}
+        }
+      }
       ]
     }
   ])
@@ -65,6 +79,7 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+// const state = new MenuState()
 app.on('ready',
  createWindow,
  windowManager.init({
@@ -100,4 +115,94 @@ exports.handleForm = (targetWindow) => {
     console.log('hi there all')
     // console.log(submissionEvent)
     targetWindow.webContents.send('form-submitted', 'notification-recieved')
+}
+
+// RETIEVE INITIAL STATE VALUES 
+// retrieve initial menu state
+const menuState = new MenuState().state()
+exports.getMenuState = (targetWindow) => {
+  targetWindow.webContents.send('MenuStateSent', MenuState)
+}
+
+const Store = require('electron-store')
+
+const schema = {
+  inputEncodings: {
+    type: 'array'
+  },
+  outputEncodings: {
+    type: 'array'
+  }
+}
+
+// Data Storage Functionality 
+class MenuState {
+  constructor() {
+    this.store = new Store({schema}) 
+    this.stateKeys = new Array() 
+    Object.keys(schema).map( (value, index) => {
+      this.stateKeys.push(value)
+    })
+
+    if (this.store.get('inputEncDefault') == undefined) {
+      this.store.set('inputEncDefault', 'iso-8859-1'),
+      this.store.set('outputEncDefault', 'utf-8')
+    }
+    if (this.store.get('MenuState') == undefined) {
+      this.store.set({
+        MenuState: {
+          inputEncodings: [
+            'iso-8859-1'
+          ],
+          outputEncodings: [
+            'utf-8'
+          ],
+          
+        }
+      })
+    }
+  }
+
+
+  state() {
+    let state = {} 
+    this.stateKeys.map( (key) => {
+      this.state[key] = this.store.get(key)
+    })
+    return JSON.stringify(state)
+  }
+
+
+  get(key) {
+    return this.store.get(key)
+  } 
+
+
+  set(key, value) {
+    this.store.set(key, value)
+  }
+
+
+  getInputEncodings() {
+    return this.store.get('inputEncodings')
+  }
+
+  
+  setInputEncodingDefault(value) {
+    this.store.set({
+      inputEncodingDefault: value
+    })
+  }
+
+
+  setOutputEncodingDefault(value) {
+    this.store.set({
+      outputEncodingDefault: value
+    })
+  }
+
+
+  setInputEncodings(value) {
+    let inputEncodings = this.getInputEncodings
+  }
 }
