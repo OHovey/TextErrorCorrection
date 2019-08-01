@@ -12,14 +12,9 @@ const outputDir = document.getElementById('outputDir')
 
 handleFormSubmit = () => {
     try {
-        // e.preventDefault() 
-        console.log('hi')
-        // console.log(e)
         handleForm(currentWindow)
     } catch (err) {
-        console.log('hi')
-    } finally {
-        console.log('in finally block')
+        console.error(err)
     }
 }
 
