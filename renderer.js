@@ -8,28 +8,41 @@ const currentWindow = remote.getCurrentWindow()
 const Form = document.querySelector('.input-container') 
 
 // form input values
+const textOnlyCheckbox = document.getElementById('checkbox')
+const textOnlyText =  () => { 
+    return document.getElementById('textOnlyText').value
+}
+
 const inputFile = document.getElementById('inputFile') 
 const inputEnc = document.getElementById('inputEnc') 
 const outputEnc = document.getElementById('outputEnc') 
 
 
 // request menu state 
-ipcRenderer.sendSync('requestMenuState')
+ipcRenderer.send('requestMenuState')
 ipcRenderer.on('MenuStateRecieved', (e, args) => {
     console.log(args)
 })
 
+// Add event listener to the checkbox to perform relevent form alterations
+textOnlyCheckbox.addEventListener('change', () => {
+    if (textOnlyCheckbox.checked == true) {
+        document.getElementById('textOnlyText').disabled = false
+        document.getElementById('inputFileDiv').style.opacity = 0.4
+        document.getElementById('inputFile').disabled = true
+        return
+    }
+    document.getElementById('textOnlyText').disabled = true
+    document.getElementById('inputFileDiv').style.opacity = 1.0
+    document.getElementById('inputFile').disabled = false
+})
 
 handleFormSubmit = () => {
     try {
-        // e.preventDefault() 
         console.log('hi')
-        // console.log(e)
         handleForm(currentWindow)
     } catch (err) {
-        console.log('hi')
-    } finally {
-        console.log('in finally block')
+        console.error(err)
     }
 }
 
@@ -45,42 +58,41 @@ ipcRenderer.on('form-submitted', (e, args) => {
     console.log(e)
     console.log('back at renderer process')
     console.log(Form.childNodes)
-    
-    inputGroups = {}
 
-    Form.childNodes.forEach(node => {
-        if (node.classList != undefined) {
-            let input = node.childNodes.item(3)
-            if (input == null) {
-                return;
-            }
-            if (input.className != null) {
-                if (input.className == 'custom-file') {
-                    input = input.childNodes.item(1)
-                    const key = input.id 
-                    inputGroups[key] = input
-                } else {
-                    const key = input.id
-                    input.childNodes.forEach( childNode => {
-                        if (childNode.tagName = 'OPTION') {
-                            console.log('childNode: ' + childNode.innerText)
-                            if (childNode.selected) {
-                                let value = childNode.innerText
-                                inputGroups[key] = value
-                            }
-                        }
-                    })
+    if (textOnlyCheckbox.checked) {
+        let text = textOnlyText()
+        CsvService.transmuteText(text)
+    } else {
+        inputGroups = {}
+
+        Form.childNodes.forEach(node => {
+            if (node.classList != undefined) {
+                let input = node.childNodes.item(3)
+                if (input == null) {
+                    return;
                 }
-            } else {
-
+                if (input.className != null) {
+                    if (input.className == 'custom-file') {
+                        input = input.childNodes.item(1)
+                        const key = input.id 
+                        inputGroups[key] = input
+                    } else {
+                        const key = input.id
+                        input.childNodes.forEach( childNode => {
+                            if (childNode.tagName = 'OPTION') {
+                                console.log('childNode: ' + childNode.innerText)
+                                if (childNode.selected) {
+                                    let value = childNode.innerText
+                                    inputGroups[key] = value
+                                }
+                            }
+                        })
+                    }
+                } 
             }
-            // console.log(input)
-        }
-        // console.log(typeof(node.classList))
-    })
-
-    CsvService.transmute(inputGroups)
-
+        })
+        CsvService.transmuteFile(inputGroups)
+    }
 })
 // EXTERNAL LIBRARIES 
 // module: papaparse { required for reading and 
@@ -99,7 +111,7 @@ class CsvService {
     
     // send csv file data to pyhton script and return either success or 
     // error message
-    static transmute(inputGroups) {
+    static transmuteFile(inputGroups) {
         const file = inputGroups.inputFile.files[0]
         const inputEncoding = inputGroups.inputEnc
         const outputEnc = inputGroups.outputEnc
@@ -122,5 +134,9 @@ class CsvService {
                 FileSaver.saveAs(newFile, filename)
             }
         })
+    }
+
+    static transmuteText(text) {
+
     }
 }
