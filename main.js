@@ -7,6 +7,9 @@ let win
 
 function createWindow () {
 
+  let menuState = new MenuState() 
+  menuState = menuState.state()
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
@@ -19,15 +22,11 @@ function createWindow () {
     }
   })
 
-  win.rendererSideName = 
-
   // and load the index.html of the app.
   win.loadFile('index.html')
 
   // Open the DevTools.
   win.webContents.openDevTools()
-
-  let contents = win.webContents
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -76,6 +75,98 @@ function createWindow () {
   Menu.setApplicationMenu(menu)
 }
 
+const Store = require('electron-store')
+
+// define some basic perameters for state values
+const schema = {
+  inputEncodings: {
+    type: 'array'
+  },
+  outputEncodings: {
+    type: 'array'
+  }
+}
+
+// Define Data Storage Functionality 
+class MenuState {
+  constructor() {
+    this.store = new Store({schema}) 
+    this.stateKeys = new Array() 
+    Object.keys(schema).map( (value, index) => {
+      this.stateKeys.push(value)
+    })
+
+    if (this.store.get('inputEncDefault') == undefined) {
+      this.store.set('inputEncDefault', 'iso-8859-1'),
+      this.store.set('outputEncDefault', 'utf-8')
+    }
+    if (this.store.get('MenuState') == undefined) {
+      this.store.set({
+        MenuState: {
+          inputEncodings: [
+            'iso-8859-1'
+          ],
+          outputEncodings: [
+            'utf-8'
+          ],
+          
+        }
+      })
+    }
+  }
+
+
+  state = () => {
+    let state = {} 
+    this.stateKeys.map( (key) => {
+      this.state[key] = this.store.get(key)
+    })
+    return JSON.stringify(this.store.get('MenuState'))
+    // return JSON.stringify({'someKey': 'someValue'})
+  }
+
+
+  get(key) {
+    return this.store.get(key)
+  } 
+
+
+  set(key, value) {
+    this.store.set(key, value)
+  }
+
+
+  getInputEncodings() {
+    return this.store.get('inputEncodings')
+  }
+
+  
+  setInputEncodingDefault(value) {
+    this.store.set({
+      inputEncodingDefault: value
+    })
+  }
+
+
+  setOutputEncodingDefault(value) {
+    this.store.set({
+      outputEncodingDefault: value
+    })
+  }
+
+
+  setInputEncodings(value) {
+    let inputEncodings = this.getInputEncodings
+  }
+}
+
+// RETIEVE INITIAL STATE VALUES 
+// retrieve initial menu state
+const menuState = new MenuState().state()
+getMenuState = (targetWindow) => {
+  targetWindow.webContents.send('MenuStateSent', menuState)
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -117,92 +208,11 @@ exports.handleForm = (targetWindow) => {
     targetWindow.webContents.send('form-submitted', 'notification-recieved')
 }
 
-// RETIEVE INITIAL STATE VALUES 
-// retrieve initial menu state
-const menuState = new MenuState().state()
-exports.getMenuState = (targetWindow) => {
-  targetWindow.webContents.send('MenuStateSent', MenuState)
-}
-
-const Store = require('electron-store')
-
-const schema = {
-  inputEncodings: {
-    type: 'array'
-  },
-  outputEncodings: {
-    type: 'array'
-  }
-}
-
-// Data Storage Functionality 
-class MenuState {
-  constructor() {
-    this.store = new Store({schema}) 
-    this.stateKeys = new Array() 
-    Object.keys(schema).map( (value, index) => {
-      this.stateKeys.push(value)
-    })
-
-    if (this.store.get('inputEncDefault') == undefined) {
-      this.store.set('inputEncDefault', 'iso-8859-1'),
-      this.store.set('outputEncDefault', 'utf-8')
-    }
-    if (this.store.get('MenuState') == undefined) {
-      this.store.set({
-        MenuState: {
-          inputEncodings: [
-            'iso-8859-1'
-          ],
-          outputEncodings: [
-            'utf-8'
-          ],
-          
-        }
-      })
-    }
-  }
-
-
-  state() {
-    let state = {} 
-    this.stateKeys.map( (key) => {
-      this.state[key] = this.store.get(key)
-    })
-    return JSON.stringify(state)
-  }
-
-
-  get(key) {
-    return this.store.get(key)
-  } 
-
-
-  set(key, value) {
-    this.store.set(key, value)
-  }
-
-
-  getInputEncodings() {
-    return this.store.get('inputEncodings')
-  }
-
-  
-  setInputEncodingDefault(value) {
-    this.store.set({
-      inputEncodingDefault: value
-    })
-  }
-
-
-  setOutputEncodingDefault(value) {
-    this.store.set({
-      outputEncodingDefault: value
-    })
-  }
-
-
-  setInputEncodings(value) {
-    let inputEncodings = this.getInputEncodings
-  }
-}
+// await request for menu state  
+ipcMain.on('requestMenuState', (e) => {
+  let menuState = new MenuState().state()
+  console.log('menuState: ' + menuState)
+  e.reply('MenuStateRecieved', JSON.stringify({
+    'menuState': menuState
+  }))
+})
