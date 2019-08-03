@@ -7,9 +7,6 @@ let win
 
 function createWindow () {
 
-  let menuState = new MenuState() 
-  menuState = menuState.state()
-
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
