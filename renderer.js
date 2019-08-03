@@ -1,11 +1,9 @@
-const { remote, ipcRenderer } = require('electron') 
+const { ipcRenderer } = require('electron') 
+const remote = require('electron').remote
 const { handleForm, getMenuState } = remote.require('./main') 
 const currentWindow = remote.getCurrentWindow() 
 
-// import initial menu states 
-//inputEncoding state 
-let menuState = currentWindow.process.argv['menuState']
-console.log(menuState)
+
 
 const Form = document.querySelector('.input-container') 
 
@@ -13,7 +11,14 @@ const Form = document.querySelector('.input-container')
 const inputFile = document.getElementById('inputFile') 
 const inputEnc = document.getElementById('inputEnc') 
 const outputEnc = document.getElementById('outputEnc') 
-const outputDir = document.getElementById('outputDir')
+
+
+// request menu state 
+ipcRenderer.sendSync('requestMenuState')
+ipcRenderer.on('MenuStateRecieved', (e, args) => {
+    console.log(args)
+})
+
 
 handleFormSubmit = () => {
     try {
@@ -31,6 +36,9 @@ handleFormSubmit = () => {
 //Setup Menu State 
 ipcRenderer.on('MenuStateSent', (e, args) => {
     // set selection menu of input and output encoding form inputs
+    console.log('setting up menu state!')
+    console.log('args: ' + args)
+
 })
 
 ipcRenderer.on('form-submitted', (e, args) => {
