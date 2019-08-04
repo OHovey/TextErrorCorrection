@@ -23,12 +23,21 @@
           
             <div>
             <div class="input-container border border-primary rounded p-4">
-                    <div class="input-group mb-3">
+                    <div  class = "input-group mb-3">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                        <input id=checkbox type="checkbox" placeholder="text-only">
+                        </div>
+                    </div>
+                    <input id="textOnlyText" type="text" onpaste = "handlePaste(e)" class="form-control" placeholder="text-only">
+                    </div>
+                    <br>
+                    <div id="inputFileDiv" class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Data File</span>
                             </div>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" id = "inputFile">
+                                <input type="file" class="custom-file-input" id = "inputFile" display = "block">
                                 <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
                             </div>
                         </div>
@@ -54,37 +63,22 @@
                                     <option value="3">Three</option>
                                 </select>
                                 </div>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Output Location</span>
-                            </div>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="outputDir" webkitdirectory directory multiple>
-                                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
-                            </div>
-                        </div>
                         <div class="input-group">
                             <button type="button" class="btn btn-primary btn-block" onclick="handleFormSubmit()">
                                 Submit
                             </button>
                         </div>
             </div>
-            
-            <!-- <form id = "form" onsubmit=""> -->
-                
-            <!-- </form> -->
+
+            <div id="appendCopyButton" class="container-fluid">
+                <div class="container">
+                    <p id = "clipboard" class = "text-center h4"></p>
+                </div>
             </div>
-          
+
+            </div>
         </div>
     </div>
   </body>
-
-  <!-- <script src = './services/csvService.js'></script> -->
-
-  <!-- Text Encoding Modules for primary functionality functionality -->
-  <!-- <script src="./node_modules/text-encoding/lib/encoding-indexes.js"></script>
-  <script src="./node_modules/text-encoding/lib/encoding.js"></script> -->
-
-  <!-- <script src="encoding.js"></script> -->
   <script src = './renderer.js'></script>
 </html>
