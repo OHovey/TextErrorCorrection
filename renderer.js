@@ -14,9 +14,6 @@ const textOnlyText =  () => {
 }
 
 const inputFile = document.getElementById('inputFile') 
-const inputEnc = document.getElementById('inputEnc') 
-const outputEnc = document.getElementById('outputEnc') 
-
 
 // request menu state 
 ipcRenderer.send('requestMenuState')
@@ -25,6 +22,7 @@ ipcRenderer.on('MenuStateRecieved', (e, args) => {
 })
 
 // Add event listener to the checkbox to perform relevent form alterations
+// document.getElementById('textOnlyText').disabled = true
 textOnlyCheckbox.addEventListener('change', () => {
     if (textOnlyCheckbox.checked == true) {
         document.getElementById('textOnlyText').disabled = false
@@ -46,6 +44,42 @@ handleFormSubmit = () => {
     }
 }
 
+// handle pasting of data into text-input 
+handlePaste = (e) => {
+    const text = navigator.clipboard.readText()
+        .then(
+            text => e.target.value = text
+        )
+}
+
+// function for pasing the decoded text back to the window  
+pinToFront = (string) => {
+    document.getElementById('clipboard').innerText = string 
+
+    let btn = document.createElement('button') 
+    btn.className = 'btn btn-primary' 
+    btn.innerText = 'copy to clipboard'
+    btn.onclick = (e) => {
+        let t = document.createElement('textarea') 
+        t.value = document.getElementById('clipboard').innerText
+        document.querySelector('body').appendChild(t)
+
+        if (window.getSelection()) {
+            if (window.getSelection.empty) window.getSelection.empty()
+            else if (window.getSelection().removeAllRanges) window.getSelection().removeAllRanges() 
+        } else if (document.selection) {
+            document.selection.empty()
+        }
+
+
+        t.select() 
+        let copiedText = document.execCommand('copy')
+        document.querySelector('body').removeChild(t)
+    }
+
+    document.getElementById('appendCopyButton').appendChild(btn)
+}
+
 //Setup Menu State 
 ipcRenderer.on('MenuStateSent', (e, args) => {
     // set selection menu of input and output encoding form inputs
@@ -61,7 +95,9 @@ ipcRenderer.on('form-submitted', (e, args) => {
 
     if (textOnlyCheckbox.checked) {
         let text = textOnlyText()
-        CsvService.transmuteText(text)
+        let string = CsvService.transmuteText(text)
+        console.log('string: ' + string)
+        pinToFront(string)
     } else {
         inputGroups = {}
 
@@ -137,6 +173,19 @@ class CsvService {
     }
 
     static transmuteText(text) {
+        let inputEnc 
+        let outputEnc
+        document.getElementById('inputEnc').childNodes.forEach(node => {
+            if (node.selected) inputEnc = node.innerText
+        })
+        document.getElementById('outputEnc').childNodes.forEach(node => {
+            if (node.selected) outputEnc = node.innerText
+        })
+        
+        console.log('inputEnc: ' + inputEnc)
 
+        let buf = Iconv.encode(text, inputEnc) 
+        let string = Iconv.decode(buf, outputEnc)
+        return string
     }
 }
